@@ -44,32 +44,59 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public String crearCuentaRegular(String dniUsuario, String alias) {
-		// TODO Auto-generated method stub
-		return null;
+		validarUsuarioYAliasParaCreacion(dniUsuario, alias);
+
+		String cvu = Utilitarios.generarSiguienteCvu();
+		Cuenta cuenta = new CuentaRegular(cvu, alias, dniUsuario);
+
+		registrarCuenta(cuenta);
+		return cvu;
 	}
 
 	@Override
 	public String crearCuentaPremium(String dniUsuario, String alias, double depositoInicial) {
-		// TODO Auto-generated method stub
-		return null;
+		validarUsuarioYAliasParaCreacion(dniUsuario, alias);
+		if (depositoInicial < 500000) throw new IllegalArgumentException("Depósito inicial insuficiente para cuenta premium");
+
+		String cvu = Utilitarios.generarSiguienteCvu();
+		Cuenta cuenta = new CuentaPremium(cvu, alias, dniUsuario, depositoInicial);
+
+		registrarCuenta(cuenta);
+		return cvu;
 	}
 
 	@Override
 	public String crearCuentaCorporativa(String dniUsuario, String alias, String cuitEmpresa) {
-		// TODO Auto-generated method stub
-		return null;
+		validarUsuarioYAliasParaCreacion(dniUsuario, alias);
+		Empresa emp = empresasPorCuit.get(cuitEmpresa);
+		if (emp == null) throw new IllegalArgumentException("Empresa no registrada: " + cuitEmpresa);
+		if (!emp.estaAutorizado(dniUsuario)) throw new IllegalArgumentException("Usuario no autorizado para empresa: " + dniUsuario);
+
+		String cvu = Utilitarios.generarSiguienteCvu();
+		Cuenta cuenta = new CuentaCorporativa(cvu, alias, dniUsuario, cuitEmpresa);
+
+		registrarCuenta(cuenta);
+		return cvu;
 	}
 
 	@Override
 	public List<String> obtenerCuentas(String dniUsuario) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!usuariosPorDni.containsKey(dniUsuario)) throw new IllegalArgumentException("Usuario no existe: " + dniUsuario);
+		List<Cuenta> cuentas = cuentasPorUsuario.get(dniUsuario);
+		List<String> resultado = new ArrayList<>();
+		if (cuentas != null) {
+			for (Cuenta c : cuentas) {
+				resultado.add(c.tipo + ": " + c.alias + " (" + c.cvu + ")");
+			}
+		}
+		return resultado;
 	}
 
 	@Override
 	public double obtenerSaldoDisponible(String cvu) {
-		// TODO Auto-generated method stub
-		return 0;
+		Cuenta c = cuentasPorCvu.get(cvu);
+		if (c == null) throw new IllegalArgumentException("Cuenta no encontrada: " + cvu);
+		return c.saldo;
 	}
 
 	@Override
@@ -105,8 +132,9 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public String consultarCvu(String alias) {
-		// TODO Auto-generated method stub
-		return null;
+		Cuenta c = cuentasPorAlias.get(alias);
+		if (c == null) throw new IllegalArgumentException("Alias no registrado: " + alias);
+		return c.cvu;
 	}
 
 	@Override
