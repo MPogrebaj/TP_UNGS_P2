@@ -101,7 +101,7 @@ public class Billetera implements IBilletera {
 		List<String> resultado = new ArrayList<>();
 		if (cuentas != null) {
 			for (Cuenta c : cuentas) {
-				resultado.add(c.tipo + ": " + c.alias + " (" + c.cvu + ")");
+				resultado.add(c.consultarTipo() + ": " + c.consultarAlias() + " (" + c.consultarCvu() + ")");
 			}
 		}
 		return resultado;
@@ -111,7 +111,7 @@ public class Billetera implements IBilletera {
 	public double obtenerSaldoDisponible(String cvu) {
 		Cuenta c = cuentasPorCvu.get(cvu);
 		if (c == null) throw new IllegalArgumentException("Cuenta no encontrada: " + cvu);
-		return c.saldo;
+		return c.obtenerSaldoDisponible();
 	}
 
 	@Override
@@ -149,7 +149,7 @@ public class Billetera implements IBilletera {
 	public String consultarCvu(String alias) {
 		Cuenta c = cuentasPorAlias.get(alias);
 		if (c == null) throw new IllegalArgumentException("Alias no registrado: " + alias);
-		return c.cvu;
+		return c.consultarCvu();
 	}
 	private void validarUsuarioYAliasParaCreacion(String dniUsuario, String alias) {
 		if (dniUsuario == null || dniUsuario.isEmpty()) {

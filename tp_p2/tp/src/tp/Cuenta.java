@@ -7,13 +7,15 @@ import java.util.List;
 public abstract class Cuenta {
     private final String cvu;
     private final String alias;
+    private final String dniTitular;
     private double saldoDisponible;
     private double montoInvertido;
     private final List<String> historial;
 
-    protected Cuenta(String cvu, String alias) {
+    protected Cuenta(String cvu, String alias, String dniTitular) {
         this.cvu = validarCvu(cvu);
         this.alias = validarAlias(alias);
+        this.dniTitular = validarDniTitular(dniTitular);
         this.saldoDisponible = 0.0;
         this.montoInvertido = 0.0;
         this.historial = new ArrayList<>();
@@ -85,10 +87,10 @@ public abstract class Cuenta {
     }
 
     public String detallesCuenta() {
-        return String.format("%s: %s (%s)", tipo(), alias, cvu);
+        return String.format("%s: %s (%s)", consultarTipo(), alias, cvu);
     }
 
-    protected abstract String tipo();
+    protected abstract String consultarTipo();
 
     protected abstract void verificarDeposito(double monto);
 
@@ -107,5 +109,12 @@ public abstract class Cuenta {
             throw new RuntimeException("Alias inválido.");
         }
         return alias;
+    }
+
+    private String validarDniTitular(String dniTitular) {
+        if (dniTitular == null || dniTitular.isBlank()) {
+            throw new RuntimeException("DNI del titular inválido.");
+        }
+        return dniTitular;
     }
 }

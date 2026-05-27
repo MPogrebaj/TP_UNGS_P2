@@ -3,12 +3,12 @@ package tp;
 public class CuentaRegular extends Cuenta {
     private static final double LIMITE_SALDO = 5_000_000.0;
 
-    public CuentaRegular(String cvu, String alias) {
-        super(cvu, alias);
+    public CuentaRegular(String cvu, String alias, String dniTitular) {
+        super(cvu, alias, dniTitular);
     }
 
     @Override
-    public String tipo() {
+    public String consultarTipo() {
         return "Regular";
     }
 
