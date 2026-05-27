@@ -5,32 +5,21 @@ import java.time.LocalDate;
 public abstract class Actividad {
 
     private final LocalDate fecha;
-    private final Cuenta cuentaOrigen;
     private final double monto;
     private final boolean aprobada;
-/*uso protected porque actividad esta pensado para herencia*/
-    protected Actividad(Cuenta cuentaOrigen, double monto, boolean aprobada) {
-
-        if (cuentaOrigen == null) {
-            throw new IllegalArgumentException("Cuenta origen inválida.");
-        }
-
+    
+    /*uso protected porque actividad esta pensado para herencia*/
+    protected Actividad(double monto, boolean aprobada) {
         if (monto <= 0) {
-            throw new IllegalArgumentException("Monto inválido.");
+            throw new RuntimeException("Monto inválido.");
         }
-
         this.fecha = Utilitarios.hoy();
-        this.cuentaOrigen = cuentaOrigen;
         this.monto = monto;
         this.aprobada = aprobada;
     }
 
     public LocalDate consultarFecha() {
         return fecha;
-    }
-
-    public Cuenta consultarCuentaOrigen() {
-        return cuentaOrigen;
     }
 
     public double consultarMonto() {
