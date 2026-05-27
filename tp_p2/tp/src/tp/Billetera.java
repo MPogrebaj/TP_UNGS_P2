@@ -1,8 +1,24 @@
 package tp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Billetera implements IBilletera {
+	private Map<String, Usuario> usuariosPorDni;
+    private Map<String, Empresa> empresasPorCuit;
+    private Map<String, Cuenta> cuentasPorCvu;
+    private Map<String, Cuenta> cuentasPorAlias;
+    private List<Actividad> actividadesGlobales;
+
+	public Billetera() {
+		this.usuariosPorDni = new HashMap<>();
+        this.empresasPorCuit = new HashMap<>();
+        this.cuentasPorCvu = new HashMap<>();
+        this.cuentasPorAlias = new HashMap<>();
+        this.actividadesGlobales = new ArrayList<>();
+	}
 
 	@Override
 	public void registrarEmpresa(String cuit, String nombreFantasia, String telefono, String email,
