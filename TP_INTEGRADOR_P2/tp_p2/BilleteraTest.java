@@ -18,7 +18,7 @@ public class BilleteraTest {
 	        billetera.registrarUsuario("11111111", "Alice", "123", "a@test.com");
 	        billetera.registrarUsuario("22222222", "Bob", "456", "b@test.com");
 
-	        // TODO: inicializar Utilitarios con valoraciones para las pruenas
+	        //  TODO: inicializar Utilitarios con valoraciones para las pruenas
 	        // que permitan calcular los intereses parciales y totales. así como los
 	        // vencimientos de las inversiones
 	        Utilitarios.definirHoy(LocalDate.now());
