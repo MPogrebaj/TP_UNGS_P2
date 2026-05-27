@@ -35,8 +35,11 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public void registrarUsuario(String dni, String nombre, String telefono, String email) {
-		// TODO Auto-generated method stub
-
+		if (usuariosPorDni.containsKey(dni)) {
+        	throw new RuntimeException("El usuario ya está registrado.");
+    	}
+    	Usuario usuario = new Usuario(dni, nombre, telefono, email);
+    	usuariosPorDni.put(dni, usuario);
 	}
 
 	@Override
