@@ -25,13 +25,26 @@ public class Billetera implements IBilletera {
 	@Override
 	public void registrarEmpresa(String cuit, String nombreFantasia, String telefono, String email,
 			String nombreContacto) {
-		// TODO Auto-generated method stub
 
+		if (empresasPorCuit.containsKey(cuit)){
+			throw new IllegalArgumentException("La empresa ya esta registrada.");
+		}
+
+		Empresa empresa = new Empresa(cuit, nombreFantasia, telefono, email, nombreContacto);
+
+		empresasPorCuit.put(cuit, empresa);
 	}
 
 	@Override
 	public void agregarPersonaAutorizada(String cuitEmpresa, String dniAutorizado) {
-		// TODO Auto-generated method stub
+		
+		Empresa empresa = empresasPorCuit.get(cuitEmpresa);
+
+		if (empresa == null) {
+			throw new IllegalArgumentException("Empresa inexistente.");
+		}
+
+		empresa.agregarAutorizado(dniAutorizado);
 
 	}
 
