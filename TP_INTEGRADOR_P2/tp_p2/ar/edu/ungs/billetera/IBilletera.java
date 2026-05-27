@@ -3,7 +3,7 @@ package ar.edu.ungs.billetera;
 import java.util.*;
 
 /**
- * Interfaz principal para el sistema de Billetera Virtual.
+ *  Interfaz principal para el sistema de Billetera Virtual.
  * Define las operaciones disponibles para usuarios, cuentas e inversiones.
  */
 public interface IBilletera {
