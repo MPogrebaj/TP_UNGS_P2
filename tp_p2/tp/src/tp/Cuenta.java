@@ -27,6 +27,10 @@ public abstract class Cuenta {
         return alias;
     }
 
+    public String consultarDniTitular() {
+        return dniTitular;
+    }
+
     public double obtenerSaldoDisponible() {
         return saldoDisponible;
     }

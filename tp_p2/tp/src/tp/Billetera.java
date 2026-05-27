@@ -10,6 +10,7 @@ public class Billetera implements IBilletera {
     private Map<String, Empresa> empresasPorCuit;
     private Map<String, Cuenta> cuentasPorCvu;
     private Map<String, Cuenta> cuentasPorAlias;
+    private Map<String, List<Cuenta>> cuentasPorUsuario;
     private List<Actividad> actividadesGlobales;
 
 	public Billetera() {
@@ -17,6 +18,7 @@ public class Billetera implements IBilletera {
         this.empresasPorCuit = new HashMap<>();
         this.cuentasPorCvu = new HashMap<>();
         this.cuentasPorAlias = new HashMap<>();
+        this.cuentasPorUsuario = new HashMap<>();
         this.actividadesGlobales = new ArrayList<>();
 	}
 
@@ -136,7 +138,26 @@ public class Billetera implements IBilletera {
 		if (c == null) throw new IllegalArgumentException("Alias no registrado: " + alias);
 		return c.cvu;
 	}
+	private void validarUsuarioYAliasParaCreacion(String dniUsuario, String alias) {
+		if (dniUsuario == null || dniUsuario.isEmpty()) {
+			throw new IllegalArgumentException("DNI inválido");
+		}
+		if (alias == null || alias.isEmpty()) {
+			throw new IllegalArgumentException("Alias inválido");
+		}
+		if (!usuariosPorDni.containsKey(dniUsuario)) {
+			throw new IllegalArgumentException("Usuario no existe: " + dniUsuario);
+		}
+		if (cuentasPorAlias.containsKey(alias)) {
+			throw new IllegalArgumentException("Alias ya registrado: " + alias);
+		}
+	}
 
+	private void registrarCuenta(Cuenta cuenta) {
+		cuentasPorCvu.put(cuenta.consultarCvu(), cuenta);
+		cuentasPorAlias.put(cuenta.consultarAlias(), cuenta);
+		cuentasPorUsuario.computeIfAbsent(cuenta.consultarDniTitular(), k -> new ArrayList<>()).add(cuenta);
+	}
 	@Override
 	public List<String> consultarHistorialGlobal() {
 		// TODO Auto-generated method stub
