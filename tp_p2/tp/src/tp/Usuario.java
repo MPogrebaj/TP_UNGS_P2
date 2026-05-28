@@ -56,7 +56,7 @@ public class Usuario {
         if (telefono == null) {
             throw new RuntimeException("Teléfono no puede ser nulo");
         }
-        if (telefono.length() < 4) {
+        if (telefono.length() < 3) {
             throw new RuntimeException("Teléfono inválido");
         }
         if (!telefono.matches("^[0-9()\\s+-]+$")) {
