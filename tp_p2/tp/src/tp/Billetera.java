@@ -51,7 +51,7 @@ public class Billetera implements IBilletera {
 	@Override
 	public void registrarUsuario(String dni, String nombre, String telefono, String email) {
 		if (usuariosPorDni.containsKey(dni)) {
-        	throw new RuntimeException("El usuario ya está registrado.");
+        	throw new IllegalArgumentException("El usuario ya está registrado.");
     	}
     	Usuario usuario = new Usuario(dni, nombre, telefono, email);
     	usuariosPorDni.put(dni, usuario);
@@ -150,21 +150,42 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public int realizarInversionRentaFija(String dni, String cvu, double monto, int plazoDias) {
-		// TODO Auto-generated method stub
-		return 0;
+		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+		Inversion inversion = new RentaFija(monto, plazoDias);
+		cuenta.retirar(monto);
+		cuenta.registrarActividad(inversion);
+		actividadesGlobales.add(inversion);
+		Usuario usuario = usuariosPorDni.get(dni);
+		usuario.sumarTotalInvertido(monto);
+		return inversion.consultarId();
 	}
 
 	@Override
 	public int realizarInversionDivisa(String dni, String cvu, double monto, int plazoDias, String divisa,
 			double tasa) {
-		// TODO Auto-generated method stub
-		return 0;
+		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+		Inversion inversion = new InversionDivisa(monto, plazoDias, divisa, tasa);
+		cuenta.retirar(monto);
+		cuenta.registrarActividad(inversion);
+		actividadesGlobales.add(inversion);
+		Usuario usuario = usuariosPorDni.get(dni);
+		usuario.sumarTotalInvertido(monto);
+		return inversion.consultarId();
 	}
 
 	@Override
 	public int realizarInversionLiquidez(String dni, String cvu, double monto, int plazoDias) {
-		// TODO Auto-generated method stub
-		return 0;
+		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+		if (!(cuenta instanceof CuentaCorporativa)) {
+			throw new IllegalArgumentException("El fondo de liquidez solo puede hacerse desde una cuenta corporativa.");
+		}
+		Inversion inversion = new FondoLiquidezEmpresarial(monto, plazoDias);
+		cuenta.retirar(monto);
+		cuenta.registrarActividad(inversion);
+		actividadesGlobales.add(inversion);
+		Usuario usuario = usuariosPorDni.get(dni);
+		usuario.sumarTotalInvertido(monto);
+		return inversion.consultarId();
 	}
 
 	@Override
@@ -227,6 +248,35 @@ public class Billetera implements IBilletera {
 	public List<String> cuentasConMayorVolumen(int cantidadTop) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	private Cuenta validarDatosBasicosInversion(String dni, String cvu, double monto, int plazoDias) {
+		if (!usuariosPorDni.containsKey(dni)) {
+			throw new IllegalArgumentException("Usuario inexistente.");
+		}
+
+		Cuenta cuenta = cuentasPorCvu.get(cvu);
+		if (cuenta == null) {
+			throw new IllegalArgumentException("Cuenta inexistente.");
+		}
+
+		if (!cuenta.consultarDniTitular().equals(dni)) {
+			throw new IllegalArgumentException("La cuenta no pertenece al usuario indicado.");
+		}
+
+		if (monto <= 0) {
+			throw new IllegalArgumentException("Monto inválido.");
+		}
+
+		if (plazoDias <= 0) {
+			throw new IllegalArgumentException("Plazo inválido.");
+		}
+
+		if (cuenta.obtenerSaldoDisponible() < monto) {
+			throw new IllegalStateException("Saldo insuficiente.");
+		}
+
+		return cuenta;
 	}
 
 }

@@ -5,12 +5,14 @@ public class Usuario {
     private final String nombre;
     private final String telefono;
     private final String email;
+    private double totalInvertido;
 
     public Usuario(String dni, String nombre, String telefono, String email) {
         this.dni = validarDni(dni);
         this.nombre = validarNombre(nombre);
         this.telefono = validarTelefono(telefono);
         this.email = validarEmail(email);
+        this.totalInvertido=0;
     }
 
     public String consultarDni() {
@@ -78,6 +80,24 @@ public class Usuario {
             throw new RuntimeException("Email inválido");
         }
         return email;
+    }
+
+    public double obtenerTotalInvertido() {
+        return totalInvertido;
+    }
+
+    public void sumarTotalInvertido(double monto) {
+        if (monto <= 0) {
+            throw new IllegalArgumentException("Monto inválido.");
+        }
+        totalInvertido += monto;
+    }
+
+    public void restarTotalInvertido(double monto) {
+        if (monto <= 0 || monto > totalInvertido) {
+            throw new IllegalArgumentException("Monto inválido.");
+        }
+        totalInvertido -= monto;
     }
 
     @Override

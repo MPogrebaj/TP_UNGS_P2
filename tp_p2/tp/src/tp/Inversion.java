@@ -32,19 +32,19 @@ public abstract class Inversion extends Actividad {
         this.fuePrecancelada = false;
     }
 
-    public int getId() {
+    public int consultarId() {
         return id;
     }
 
-    public LocalDate getFechaConstitucion() {
+    public LocalDate consultarFechaConstitucion() {
         return fechaConstitucion;
     }
 
-    public int getPlazoDias() {
+    public int consultarPlazoDias() {
         return plazoDias;
     }
 
-    public double getMontoInvertido() {
+    public double consultarMontoInvertido() {
         return montoInvertido;
     }
 

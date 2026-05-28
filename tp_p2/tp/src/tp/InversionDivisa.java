@@ -26,7 +26,7 @@ public class InversionDivisa extends Inversion {
 
     @Override
     public double calcularResultado() {
-        double interesesEnDivisa = cantidadDivisaComprada * (tasaAnual / 365) * getPlazoDias();
+        double interesesEnDivisa = cantidadDivisaComprada * (tasaAnual / 365) * consultarPlazoDias();
         double totalDivisa = cantidadDivisaComprada + interesesEnDivisa;
         return totalDivisa * Utilitarios.consultarCotizacion(divisa);
     }

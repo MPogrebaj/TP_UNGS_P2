@@ -10,15 +10,15 @@ public class RentaFija extends Inversion {
 
     @Override
     public double calcularResultado() {
-        double intereses = getMontoInvertido() * (TASA_ANUAL / 365) * getPlazoDias();
-        return getMontoInvertido() + intereses;
+        double intereses = consultarMontoInvertido() * (TASA_ANUAL / 365) * consultarPlazoDias();
+        return consultarMontoInvertido() + intereses;
     }
 
     @Override
     public double calcularResultadoPrecancelado() {
         int dias = diasTranscurridos();
-        double intereses = getMontoInvertido() * (TASA_ANUAL / 365) * dias;
-        return getMontoInvertido() + (intereses / 2);
+        double intereses = consultarMontoInvertido() * (TASA_ANUAL / 365) * dias;
+        return consultarMontoInvertido() + (intereses / 2);
     }
 
     @Override

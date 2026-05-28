@@ -15,8 +15,8 @@ public class FondoLiquidezEmpresarial extends Inversion {
     @Override
     public double calcularResultado() {
         double cotizacionFle = Utilitarios.consultarCotizacion("FLE");
-        double montoAjustado = getMontoInvertido() * cotizacionFle;
-        double intereses = montoAjustado * (TASA_ANUAL / 365) * getPlazoDias();
+        double montoAjustado = consultarMontoInvertido() * cotizacionFle;
+        double intereses = montoAjustado * (TASA_ANUAL / 365) * consultarPlazoDias();
 
         return montoAjustado + intereses;
     }
