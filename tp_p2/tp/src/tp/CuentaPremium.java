@@ -11,6 +11,11 @@ public class CuentaPremium extends Cuenta {
     }
 
     @Override
+    public boolean puedeRecibir(double monto) {
+        return true;
+    }
+
+    @Override
     public String consultarTipo() {
         return "Premium";
     }

@@ -8,6 +8,11 @@ public class CuentaRegular extends Cuenta {
     }
 
     @Override
+    public boolean puedeRecibir(double monto) {
+        return obtenerSaldoDisponible() + monto <= 5_000_000;
+    }
+
+    @Override
     public String consultarTipo() {
         return "Regular";
     }

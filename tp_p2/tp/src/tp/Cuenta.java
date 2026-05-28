@@ -10,7 +10,7 @@ public abstract class Cuenta {
     private final String dniTitular;
     private double saldoDisponible;
     private double montoInvertido;
-    private final List<String> historial;
+    private final List<Actividad> historial;
 
     protected Cuenta(String cvu, String alias, String dniTitular) {
         this.cvu = validarCvu(cvu);
@@ -20,6 +20,8 @@ public abstract class Cuenta {
         this.montoInvertido = 0.0;
         this.historial = new ArrayList<>();
     }
+
+    public abstract boolean puedeRecibir(double monto);
 
     public String consultarCvu() {
         return cvu;
@@ -76,13 +78,15 @@ public abstract class Cuenta {
         this.montoInvertido -= monto;
     }
 
-    public void registrarActividad(String actividad) {
-        if (actividad != null && !actividad.isEmpty()) {
-            this.historial.add(actividad);
+    public void registrarActividad(Actividad actividad) {
+        if (actividad == null) {
+            throw new IllegalArgumentException("La actividad no puede ser nula.");
         }
+
+        historial.add(actividad);
     }
 
-    public List<String> consultarHistorial() {
+    public List<Actividad> consultarHistorial() {
         return Collections.unmodifiableList(historial);
     }
 

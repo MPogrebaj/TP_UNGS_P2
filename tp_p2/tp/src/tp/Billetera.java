@@ -116,9 +116,37 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public void realizarTransferencia(String cvuOrigen, String cvuDestino, double monto) {
-		// TODO Auto-generated method stub
+		Cuenta origen = cuentasPorCvu.get(cvuOrigen);
+    	Cuenta destino = cuentasPorCvu.get(cvuDestino);
 
+    	if (origen == null) {
+        	throw new IllegalArgumentException("Cuenta origen inexistente.");
+    	}
+
+    	if (destino == null) {
+        	throw new IllegalArgumentException("Cuenta destino inexistente.");
+    	}
+
+    	if (monto <= 0) {
+        	throw new IllegalArgumentException("Monto inválido.");
+    	}
+
+    	if (!destino.puedeRecibir(monto)) {
+        	throw new IllegalStateException("La cuenta destino supera el límite permitido.");
+    	}
+
+    	origen.retirar(monto);
+    	destino.depositar(monto);
+
+    	Transferencia transferencia = new Transferencia(origen, destino, monto, true);
+
+    	actividadesGlobales.add(transferencia);
+
+    	origen.registrarActividad(transferencia);
+    	destino.registrarActividad(transferencia);
 	}
+
+	
 
 	@Override
 	public int realizarInversionRentaFija(String dni, String cvu, double monto, int plazoDias) {

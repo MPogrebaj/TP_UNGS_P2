@@ -8,6 +8,11 @@ public class CuentaCorporativa extends Cuenta {
         this.cuitEmpresa = validarCuit(cuitEmpresa);
     }
 
+    @Override
+    public boolean puedeRecibir(double monto) {
+        return true;
+    }
+
     public String consultarCuitEmpresa() {
         return cuitEmpresa;
     }
