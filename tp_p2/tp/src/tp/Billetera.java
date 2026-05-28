@@ -359,4 +359,12 @@ public class Billetera implements IBilletera {
 		return cuenta;
 	}
 
+public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("Usuarios registrados: %d%n", usuariosPorDni.size()));
+    sb.append(String.format("Empresas registradas: %d%n", empresasPorCuit.size()));
+    sb.append(String.format("Cuentas activas: %d%n", cuentasPorCvu.size()));
+    sb.append(String.format("Total de actividades: %d%n", actividadesGlobales.size()));
+    return sb.toString();
+}
 }
