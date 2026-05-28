@@ -183,7 +183,7 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public int realizarInversionLiquidez(String dni, String cvu, double monto, int plazoDias) {
-		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+ 		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
 		if (!(cuenta instanceof CuentaCorporativa)) {
 			throw new IllegalArgumentException("El fondo de liquidez solo puede hacerse desde una cuenta corporativa.");
 		}
@@ -353,7 +353,7 @@ public class Billetera implements IBilletera {
 		}
 
 		if (cuenta.obtenerSaldoDisponible() < monto) {
-			throw new IllegalStateException("Saldo insuficiente.");
+			throw new IllegalArgumentException("Saldo insuficiente.");
 		}
 
 		return cuenta;
