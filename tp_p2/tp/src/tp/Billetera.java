@@ -228,14 +228,28 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public List<String> consultarHistorialCuenta(String cvu) {
-		// TODO Auto-generated method stub
-		return null;
+		Cuenta c = cuentasPorCvu.get(cvu);
+		if (c == null) throw new IllegalArgumentException("Cuenta no encontrada: " + cvu);
+		List<String> salida = new ArrayList<>();
+		for (Actividad a : c.consultarHistorial()) {
+			salida.add(a.toString());
+		}
+		return salida;
 	}
 
 	@Override
 	public List<String> consultarHistorialUsuario(String dniUsuario) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!usuariosPorDni.containsKey(dniUsuario)) throw new IllegalArgumentException("Usuario no existe: " + dniUsuario);
+		List<Cuenta> cuentas = cuentasPorUsuario.get(dniUsuario);
+		List<String> salida = new ArrayList<>();
+		if (cuentas != null) {
+			for (Cuenta c : cuentas) {
+				for (Actividad a : c.consultarHistorial()) {
+					salida.add(a.toString());
+				}
+			}
+		}
+		return salida;
 	}
 
 	@Override
