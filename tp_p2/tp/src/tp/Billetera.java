@@ -116,6 +116,22 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public void realizarTransferencia(String cvuOrigen, String cvuDestino, double monto) {
+		Cuenta[] cuentas = validarDatosTransferencia(cvuOrigen, cvuDestino, monto);
+		Cuenta origen = cuentas[0];
+    	Cuenta destino = cuentas[1];
+
+    	origen.retirar(monto);
+    	destino.depositar(monto);
+
+    	Transferencia transferencia = new Transferencia(origen, destino, monto, true);
+
+    	actividadesGlobales.add(transferencia);
+
+    	origen.registrarActividad(transferencia);
+    	destino.registrarActividad(transferencia);
+	}
+
+	private Cuenta[] validarDatosTransferencia(String cvuOrigen, String cvuDestino, double monto){
 		Cuenta origen = cuentasPorCvu.get(cvuOrigen);
     	Cuenta destino = cuentasPorCvu.get(cvuDestino);
 
@@ -135,18 +151,8 @@ public class Billetera implements IBilletera {
         	throw new IllegalStateException("La cuenta destino supera el límite permitido.");
     	}
 
-    	origen.retirar(monto);
-    	destino.depositar(monto);
-
-    	Transferencia transferencia = new Transferencia(origen, destino, monto, true);
-
-    	actividadesGlobales.add(transferencia);
-
-    	origen.registrarActividad(transferencia);
-    	destino.registrarActividad(transferencia);
+		return new Cuenta[] { origen, destino };
 	}
-
-	
 
 	@Override
 	public int realizarInversionRentaFija(String dni, String cvu, double monto, int plazoDias) {
@@ -239,6 +245,7 @@ public class Billetera implements IBilletera {
 		if (c == null) throw new IllegalArgumentException("Alias no registrado: " + alias);
 		return c.consultarCvu();
 	}
+
 	private void validarUsuarioYAliasParaCreacion(String dniUsuario, String alias) {
 		if (dniUsuario == null || dniUsuario.isEmpty()) {
 			throw new IllegalArgumentException("DNI inválido");
@@ -265,6 +272,7 @@ public class Billetera implements IBilletera {
 		}
 		cuentas.add(cuenta);
 	}
+
 	@Override
 	public List<String> consultarHistorialGlobal() {
 		List<String> salida = new ArrayList<>();
