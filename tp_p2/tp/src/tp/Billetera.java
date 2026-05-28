@@ -240,8 +240,11 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public double obtenerTotalInvertido(String dniUsuario) {
-		// TODO Auto-generated method stub
-		return 0;
+		Usuario usuario = usuariosPorDni.get(dniUsuario);
+		if (usuario == null) {
+			throw new IllegalArgumentException("Usuario inexistente.");
+		}
+		return usuario.obtenerTotalInvertido();
 	}
 
 	@Override
