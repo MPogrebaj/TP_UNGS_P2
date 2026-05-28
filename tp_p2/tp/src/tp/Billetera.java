@@ -177,24 +177,10 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public int realizarInversionLiquidez(String dni, String cvu, double monto, int plazoDias) {
-		// Primero verificar existencia de cuenta y pertenencia, y que sea corporativa
-		Cuenta cuenta = cuentasPorCvu.get(cvu);
-		if (cuenta == null) {
-			throw new IllegalArgumentException("Cuenta inexistente.");
-		}
-		if (!usuariosPorDni.containsKey(dni)) {
-			throw new IllegalArgumentException("Usuario inexistente.");
-		}
-		if (!cuenta.consultarDniTitular().equals(dni)) {
-			throw new IllegalArgumentException("La cuenta no pertenece al usuario indicado.");
-		}
+		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
 		if (!(cuenta instanceof CuentaCorporativa)) {
 			throw new IllegalArgumentException("El fondo de liquidez solo puede hacerse desde una cuenta corporativa.");
 		}
-
-		// Luego validar condiciones básicas (monto, plazo, saldo)
-		validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
-
 		Inversion inversion = new FondoLiquidezEmpresarial(monto, plazoDias);
 		cuenta.retirar(monto);
 		cuenta.agregarMontoInvertido(monto);
@@ -212,28 +198,28 @@ public class Billetera implements IBilletera {
 		if (cuenta == null) throw new IllegalArgumentException("Cuenta inexistente.");
 		if (!cuenta.consultarDniTitular().equals(dni)) throw new IllegalArgumentException("La cuenta no pertenece al usuario indicado.");
 
-		Inversion encontrada = null;
+		Inversion inversionEncontrada = null;
 		for (Actividad a : cuenta.consultarHistorial()) {
 			if (a instanceof Inversion) {
 				Inversion inv = (Inversion) a;
 				if (inv.consultarId() == idInversion) {
-					encontrada = inv;
+					inversionEncontrada = inv;
 					break;
 				}
 			}
 		}
 
-		if (encontrada == null) throw new IllegalArgumentException("Inversión no encontrada.");
+		if (inversionEncontrada == null) throw new IllegalArgumentException("Inversión no encontrada.");
 
 		// marcar precancelada (validaciones internas)
-		encontrada.marcarPrecancelada();
+		inversionEncontrada.marcarPrecancelada();
 
 		// calcular monto a devolver y actualizar saldos
-		double montoDevuelto = encontrada.calcularResultadoPrecancelado();
+		double montoDevuelto = inversionEncontrada.calcularResultadoPrecancelado();
 		cuenta.depositar(montoDevuelto);
-		cuenta.descontarMontoInvertido(encontrada.consultarMontoInvertido());
+		cuenta.descontarMontoInvertido(inversionEncontrada.consultarMontoInvertido());
 		Usuario usuario = usuariosPorDni.get(dni);
-		usuario.restarTotalInvertido(encontrada.consultarMontoInvertido());
+		usuario.restarTotalInvertido(inversionEncontrada.consultarMontoInvertido());
 
 		// registrar actividad de precancelación en historial y global
 		Actividad act = new Actividad(montoDevuelto, true) {
@@ -271,7 +257,13 @@ public class Billetera implements IBilletera {
 	private void registrarCuenta(Cuenta cuenta) {
 		cuentasPorCvu.put(cuenta.consultarCvu(), cuenta);
 		cuentasPorAlias.put(cuenta.consultarAlias(), cuenta);
-		cuentasPorUsuario.computeIfAbsent(cuenta.consultarDniTitular(), k -> new ArrayList<>()).add(cuenta);
+		
+		List<Cuenta> cuentas=cuentasPorUsuario.get(cuenta.consultarDniTitular());
+		if(cuentas==null){
+			cuentas = new ArrayList<>();
+			cuentasPorUsuario.put(cuenta.consultarDniTitular(), cuentas);
+		}
+		cuentas.add(cuenta);
 	}
 	@Override
 	public List<String> consultarHistorialGlobal() {
