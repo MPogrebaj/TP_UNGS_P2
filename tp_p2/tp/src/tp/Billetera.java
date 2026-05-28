@@ -153,6 +153,7 @@ public class Billetera implements IBilletera {
 		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
 		Inversion inversion = new RentaFija(monto, plazoDias);
 		cuenta.retirar(monto);
+		cuenta.agregarMontoInvertido(monto);
 		cuenta.registrarActividad(inversion);
 		actividadesGlobales.add(inversion);
 		Usuario usuario = usuariosPorDni.get(dni);
@@ -166,6 +167,7 @@ public class Billetera implements IBilletera {
 		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
 		Inversion inversion = new InversionDivisa(monto, plazoDias, divisa, tasa);
 		cuenta.retirar(monto);
+		cuenta.agregarMontoInvertido(monto);
 		cuenta.registrarActividad(inversion);
 		actividadesGlobales.add(inversion);
 		Usuario usuario = usuariosPorDni.get(dni);
@@ -175,12 +177,27 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public int realizarInversionLiquidez(String dni, String cvu, double monto, int plazoDias) {
-		Cuenta cuenta = validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+		// Primero verificar existencia de cuenta y pertenencia, y que sea corporativa
+		Cuenta cuenta = cuentasPorCvu.get(cvu);
+		if (cuenta == null) {
+			throw new IllegalArgumentException("Cuenta inexistente.");
+		}
+		if (!usuariosPorDni.containsKey(dni)) {
+			throw new IllegalArgumentException("Usuario inexistente.");
+		}
+		if (!cuenta.consultarDniTitular().equals(dni)) {
+			throw new IllegalArgumentException("La cuenta no pertenece al usuario indicado.");
+		}
 		if (!(cuenta instanceof CuentaCorporativa)) {
 			throw new IllegalArgumentException("El fondo de liquidez solo puede hacerse desde una cuenta corporativa.");
 		}
+
+		// Luego validar condiciones básicas (monto, plazo, saldo)
+		validarDatosBasicosInversion(dni, cvu, monto, plazoDias);
+
 		Inversion inversion = new FondoLiquidezEmpresarial(monto, plazoDias);
 		cuenta.retirar(monto);
+		cuenta.agregarMontoInvertido(monto);
 		cuenta.registrarActividad(inversion);
 		actividadesGlobales.add(inversion);
 		Usuario usuario = usuariosPorDni.get(dni);
@@ -190,7 +207,43 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public void precancelarInversion(String dni, String cvu, int idInversion) {
-		// TODO Auto-generated method stub
+		if (!usuariosPorDni.containsKey(dni)) throw new IllegalArgumentException("Usuario inexistente.");
+		Cuenta cuenta = cuentasPorCvu.get(cvu);
+		if (cuenta == null) throw new IllegalArgumentException("Cuenta inexistente.");
+		if (!cuenta.consultarDniTitular().equals(dni)) throw new IllegalArgumentException("La cuenta no pertenece al usuario indicado.");
+
+		Inversion encontrada = null;
+		for (Actividad a : cuenta.consultarHistorial()) {
+			if (a instanceof Inversion) {
+				Inversion inv = (Inversion) a;
+				if (inv.consultarId() == idInversion) {
+					encontrada = inv;
+					break;
+				}
+			}
+		}
+
+		if (encontrada == null) throw new IllegalArgumentException("Inversión no encontrada.");
+
+		// marcar precancelada (validaciones internas)
+		encontrada.marcarPrecancelada();
+
+		// calcular monto a devolver y actualizar saldos
+		double montoDevuelto = encontrada.calcularResultadoPrecancelado();
+		cuenta.depositar(montoDevuelto);
+		cuenta.descontarMontoInvertido(encontrada.consultarMontoInvertido());
+		Usuario usuario = usuariosPorDni.get(dni);
+		usuario.restarTotalInvertido(encontrada.consultarMontoInvertido());
+
+		// registrar actividad de precancelación en historial y global
+		Actividad act = new Actividad(montoDevuelto, true) {
+			@Override
+			public String descripcion() {
+				return "Precancela inversion id: " + idInversion + " (" + cvu + ")";
+			}
+		};
+		cuenta.registrarActividad(act);
+		actividadesGlobales.add(act);
 
 	}
 
@@ -222,8 +275,11 @@ public class Billetera implements IBilletera {
 	}
 	@Override
 	public List<String> consultarHistorialGlobal() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> salida = new ArrayList<>();
+		for (Actividad a : actividadesGlobales) {
+			salida.add(a.toString());
+		}
+		return salida;
 	}
 
 	@Override
@@ -263,8 +319,15 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public List<String> cuentasConMayorVolumen(int cantidadTop) {
-		// TODO Auto-generated method stub
-		return null;
+		if (cantidadTop <= 0) throw new IllegalArgumentException("cantidadTop debe ser positiva.");
+		List<Cuenta> lista = new ArrayList<>(cuentasPorCvu.values());
+		lista.sort((a, b) -> Integer.compare(b.consultarHistorial().size(), a.consultarHistorial().size()));
+		List<String> salida = new ArrayList<>();
+		for (int i = 0; i < Math.min(cantidadTop, lista.size()); i++) {
+			Cuenta c = lista.get(i);
+			salida.add(c.consultarTipo() + ": " + c.consultarAlias() + " (" + c.consultarCvu() + ")");
+		}
+		return salida;
 	}
 
 	private Cuenta validarDatosBasicosInversion(String dni, String cvu, double monto, int plazoDias) {

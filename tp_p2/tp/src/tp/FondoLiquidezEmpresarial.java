@@ -8,7 +8,7 @@ public class FondoLiquidezEmpresarial extends Inversion {
     public FondoLiquidezEmpresarial(double montoInvertido, int plazoDias) {
         super(montoInvertido, plazoDias, false);
         if (montoInvertido < MONTO_MINIMO) {
-            throw new RuntimeException("El fondo de liquidez requiere un monto mínimo de 20 millones.");
+            throw new IllegalArgumentException("El fondo de liquidez requiere un monto mínimo de 20 millones.");
         }
     }
 

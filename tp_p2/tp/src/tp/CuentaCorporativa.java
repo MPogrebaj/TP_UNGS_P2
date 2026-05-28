@@ -3,7 +3,7 @@ package tp;
 public class CuentaCorporativa extends Cuenta {
     private final String cuitEmpresa;
 
-    public CuentaCorporativa(String cvu, String alias, String cuitEmpresa, String dniTitular) {
+    public CuentaCorporativa(String cvu, String alias, String dniTitular, String cuitEmpresa) {
         super(cvu, alias, dniTitular);
         this.cuitEmpresa = validarCuit(cuitEmpresa);
     }
